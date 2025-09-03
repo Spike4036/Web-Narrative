@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>NYX Relay Inbox</title>
+  <link rel="stylesheet" href="css/site.css"/>
+</head>
+<body>
+  <header class="topbar">
+    <h1>NYX Interstellar Relay</h1>
+    <div class="filters">
+      <label>Colony
+        <select id="by-colony"><option value="">All colonies</option></select>
+      </label>
+      <label>Type
+        <select id="by-type">
+          <option value="">All</option>
+          <option>text</option><option>image</option><option>audio</option>
+        </select>
+      </label>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="inbox">
+      <h2>Messages</h2>
+      <div id="relay-list" class="list"></div>
+    </section>
+
+    <aside class="viewer">
+      <h2 id="v-title">Message</h2>
+      <div id="v-meta" class="meta"></div>
+      <img id="v-img" alt="">
+      <audio id="v-audio" controls></audio>
+      <pre id="v-text"></pre>
+    </aside>
+  </main>
+
+  <script src="js/relay-feed.js"></script>
+</body>
+</html>

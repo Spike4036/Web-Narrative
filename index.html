@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Protocol NYX — Observatory & Relay</title>
+  <style>
+    :root{ --bg:#05070E; --ink:#E6EEF7; --muted:#9fb0c6; --card:#1B2437; --line:rgba(230,238,247,.2); }
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 ui-monospace,Consolas,Menlo,monospace;}
+    /* full-canvas background */
+    #starfield{position:fixed;inset:0;z-index:-1;display:block;background:var(--bg)}
+    /* layout */
+    .wrap{min-height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:48px 16px}
+    h1{font-size:22px;margin:0 0 10px 0;letter-spacing:1px}
+    p{font-size:13px;color:var(--muted);margin:0 0 24px 0;max-width:560px}
+    .nav{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+    a.button{
+      padding:12px 20px;background:var(--card);color:var(--ink);
+      border:1px solid var(--line);border-radius:12px;text-decoration:none;
+      font-size:14px;transition:transform .1s ease, background .2s ease;
+      box-shadow:0 10px 30px rgba(0,0,0,.25);
+    }
+    a.button:hover{background:#2a3552;transform:translateY(-1px)}
+    small{display:block;color:#c8d6f1;font-size:11px;margin-top:2px}
+    footer{position:fixed;bottom:12px;left:0;right:0;text-align:center;font-size:11px;color:#596882;letter-spacing:.5px}
+  </style>
+</head>
+<body>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <main class="wrap">
+    <h1>Protocol NYX</h1>
+    <p>
+      A web-based interactive narrative in two linked modules.<br/>
+      Observe your silent world from orbit — or listen to broken voices from other colonies.
+    </p>
+
+    <nav class="nav">
+      <a href="observatory.html" class="button">🔭 Observatory<small>Nocturne Ground Link</small></a>
+      <a href="relay.html" class="button">📡 Relay Inbox<small>Interstellar Colonies</small></a>
+    </nav>
+  </main>
+
+  <footer>NYX Project · Built with p5.js &amp; vanilla JS</footer>
+
+  <script>
+  // ===== Minimal, pretty starfield with twinkle + rare shooting stars =====
+  (function(){
+    const c = document.getElementById('starfield');
+    const ctx = c.getContext('2d');
+    let pr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    let w=0,h=0, t=0;
+
+    // stars separated into parallax layers
+    const layers = [
+      { count: 120, speed: 0.004, size:[0.6,1.2], alpha:[0.35,0.65] }, // far
+      { count: 90,  speed: 0.008, size:[0.8,1.6], alpha:[0.45,0.8]  }, // mid
+      { count: 60,  speed: 0.013, size:[1.0,2.2], alpha:[0.55,0.95] }  // near
+    ];
+    let stars = [];
+    let meteors = [];
+
+    function rnd(a,b){ return a + Math.random()*(b-a); }
+    function resize(){
+      const cssW = c.clientWidth || window.innerWidth;
+      const cssH = c.clientHeight || window.innerHeight;
+      pr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      w = c.width  = Math.floor(cssW * pr);
+      h = c.height = Math.floor(cssH * pr);
+      ctx.setTransform(1,0,0,1,0,0);
+      ctx.scale(pr, pr);
+      // (Re)seed stars in CSS pixels for crispness
+      seedStars();
+    }
+    function seedStars(){
+      stars = [];
+      layers.forEach(L=>{
+        for(let i=0;i<L.count;i++){
+          stars.push({
+            x: Math.random()*window.innerWidth,
+            y: Math.random()*window.innerHeight,
+            r: rnd(L.size[0], L.size[1]),
+            a0: rnd(L.alpha[0], L.alpha[1]),
+            tw: rnd(0.6,1.8)*(Math.random()<.5?-1:1),
+            layer: L
+          });
+        }
+      });
+    }
+
+    function spawnMeteor(){
+      // small chance each second
+      if(Math.random() < 0.015) {
+        const fromTop = Math.random() < 0.6;
+        const x = fromTop ? rnd(-50, window.innerWidth*0.2) : rnd(window.innerWidth*0.6, window.innerWidth+50);
+        const y = rnd(-40, -10);
+        const vx = rnd(320, 520) * (fromTop? 1 : -1);
+        const vy = rnd(120, 200);
+        meteors.push({x, y, vx, vy, life: rnd(0.8,1.2), age:0});
+      }
+    }
+
+    function draw(){
+      t += 0.016;
+      // clear with faint vignette
+      ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+      const grd = ctx.createLinearGradient(0,0,0,window.innerHeight);
+      grd.addColorStop(0,'#060910'); grd.addColorStop(1,'#04060c');
+      ctx.fillStyle = grd; ctx.fillRect(0,0,window.innerWidth,window.innerHeight);
+
+      // stars
+      ctx.save();
+      for(const s of stars){
+        // parallax drift
+        const px = (s.x + Math.sin(t*s.layer.speed)*20) |0;
+        const py = (s.y + Math.cos(t*s.layer.speed)*10) |0;
+
+        // twinkle (low amplitude)
+        const tw = 0.35 + 0.65 * (0.5 + 0.5*Math.sin((t*1.4 + s.tw) + px*0.01));
+        ctx.globalAlpha = Math.max(0, Math.min(1, s.a0 * tw));
+        ctx.fillStyle = 'rgba(230,238,247,1)';
+        ctx.beginPath(); ctx.arc(px, py, s.r, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.restore();
+      ctx.globalAlpha = 1;
+
+      // meteors
+      spawnMeteor();
+      for(let i=meteors.length-1;i>=0;i--){
+        const m = meteors[i];
+        m.age += 0.016; if(m.age>m.life){ meteors.splice(i,1); continue; }
+        m.x += m.vx * 0.016; m.y += m.vy * 0.016;
+        // glow trail
+        const trail = 80;
+        const grad = ctx.createLinearGradient(m.x- trail, m.y- trail*0.4, m.x, m.y);
+        grad.addColorStop(0,'rgba(137,199,255,0)'); grad.addColorStop(1,'rgba(137,199,255,0.9)');
+        ctx.strokeStyle = grad; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(m.x- trail, m.y- trail*0.4); ctx.lineTo(m.x, m.y); ctx.stroke();
+        // head
+        ctx.fillStyle = 'rgba(125,247,212,0.9)';
+        ctx.beginPath(); ctx.arc(m.x, m.y, 1.5, 0, Math.PI*2); ctx.fill();
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', resize, {passive:true});
+    resize(); draw();
+  })();
+  </script>
+</body>
+</html>
