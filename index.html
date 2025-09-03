@@ -8,7 +8,16 @@
     :root{ --bg:#05070E; --ink:#E6EEF7; --muted:#9fb0c6; --card:#1B2437; --line:rgba(230,238,247,.2); }
     html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 ui-monospace,Consolas,Menlo,monospace;}
     /* full-canvas background */
-    #starfield{position:fixed;inset:0;z-index:-1;display:block;width:100vw;height:100vh;background:var(--bg)}
+   #starfield {
+  position: fixed;        /* 固定位置 */
+  inset: 0;               /* 填满整个页面 */
+  z-index: -1;            /* 保证它在内容下方 */
+  display: block;         /* 使其成为块元素 */
+  width: 100vw;           /* 让宽度填满视口 */
+  height: 100vh;          /* 让高度填满视口 */
+  background: transparent; /* 背景透明，由 canvas 绘制 */
+  pointer-events: none;   /* 让星空画布不拦截任何鼠标事件 */
+}
     /* layout */
     .wrap{min-height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:48px 16px}
     h1{font-size:22px;margin:0 0 10px 0;letter-spacing:1px}
