@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Nocturne Protocol — Start</title>
+<link rel="stylesheet" href="css/start.css">
+<!-- 像素字体 -->
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+<div class="crt-noise" aria-hidden="true"></div>
+<div class="crt-scan" aria-hidden="true"></div>
+
+<main class="wrap">
+  <!-- 你可以随意调整顺序，比如把按钮放上面 -->
+  <h1>NOCTURNE PROTOCOL</h1>
+  <p class="desc">Orbiting relay above a silent world. Observe, listen, decide.</p>
+  <div class="buttons">
+    <button id="startBtn" class="btn btn-primary">START</button>
+    <button id="muteBtn" class="btn btn-ghost">MUTE</button>
+  </div>
+</main>
+
+<script>
+const startBtn=document.getElementById('startBtn');
+startBtn.onclick=()=>location.href='intro.html'; // 改成你的游戏入口
+document.getElementById('muteBtn').onclick=()=>alert("这里加静音逻辑");
+</script>
+</body>
+</html>
