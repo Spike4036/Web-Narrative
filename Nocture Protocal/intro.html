@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Nocturne Protocol — Intro</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/intro.css">
+
+</head>
+<body>
+<div class="stage"><div class="inner"><pre id="out"></pre></div></div>
+<div class="top">Nocturne Protocol — Prologue</div>
+<div class="bottom">
+  <div id="continueHint" class="hint">CLICK OR PRESS ENTER TO CONTINUE</div>
+  <button id="mute" class="btn" aria-pressed="false">MUTE</button>
+</div>
+<div class="scan"></div><div class="noise"></div>
+
+<script>
+const NEXT_URL = 'demo.html'; // 改成你的游戏主页面
+
+const LINES = [
+  "Year 2174.\nYou relieve the prior keeper at Nocturne’s orbital relay.",
+  "An abnormal solar storm scorched the grid. The world below speaks only in fragments.",
+  "Colonies whisper through static: broadcast paths are hunted by something higher—",
+  "—shapes that bloom like nebulae, curling toward any voice in the dark.",
+  "Nocturne executed a Silence Protocol. Survival by absence. Memory by omission.",
+  "You will observe the surface. You will listen to the others. And you will choose:\nBroadcast. Beacon. Or Silence."
+];
+
+let speed=28, fastSpeed=6, idxLine=0, idxChar=0;
+const out=document.getElementById('out');
+let cursor, typing=true;
+
+let actx=null, master=null, click=null, hum=null, muted=false, unlocked=false;
+function setupAudio(){
+  if(actx) return;
+  actx=new (window.AudioContext||window.webkitAudioContext)();
+  master=actx.createGain(); master.connect(actx.destination); master.gain.value=0.20;
+  hum=actx.createOscillator(); hum.type='sine'; hum.frequency.value=44;
+  const hg=actx.createGain(); hg.gain.value=0.05; hum.connect(hg).connect(master); hum.start();
+  click=actx.createOscillator(); click.type='square';
+  const cg=actx.createGain(); cg.gain.value=0; click.connect(cg).connect(master); click.start();
+  click.tick=()=>{ if(muted) return; const t=actx.currentTime;
+    cg.gain.cancelScheduledValues(t); cg.gain.setValueAtTime(0.07,t);
+    cg.gain.exponentialRampToValueAtTime(0.0001,t+0.05);
+  };
+}
+function unlockAudio(){ if(!unlocked){ setupAudio(); unlocked=true; } }
+function toggleMute(){
+  muted=!muted;
+  document.getElementById('mute').setAttribute('aria-pressed', String(muted));
+  if(master){ master.gain.linearRampToValueAtTime(muted?0:0.20, actx.currentTime+0.3); }
+}
+
+function typeNext(){
+  if(idxLine>=LINES.length){ finish(); return; }
+  if(idxChar===0 && idxLine>0) out.appendChild(document.createElement('br'));
+  const line=LINES[idxLine]; const ch=line[idxChar]||'';
+  out.textContent+=ch;
+  if(!cursor){ cursor=document.createElement('span'); cursor.className='cursor'; out.appendChild(cursor); }
+  if(ch.trim()) click && click.tick();
+  idxChar++;
+  if(idxChar>=line.length){ idxLine++; idxChar=0; out.appendChild(document.createElement('br')); out.appendChild(document.createElement('br')); }
+  if(typing) setTimeout(typeNext, speed);
+}
+
+function finish(){
+  typing=false;
+  document.getElementById('continueHint').style.opacity=1; // 显示“点击以继续”
+}
+
+function accelerate(on){ speed=on?fastSpeed:28; }
+addEventListener('pointerdown', ()=>{ unlockAudio(); accelerate(true); });
+addEventListener('pointerup', ()=> accelerate(false));
+addEventListener('keydown', (e)=>{
+  if(e.key===' '||e.key==='Enter'){ if(typing){ unlockAudio(); accelerate(true); } else { window.location.href=NEXT_URL; } }
+  if(e.key.toLowerCase()==='m'){ unlockAudio(); toggleMute(); }
+});
+addEventListener('keyup',(e)=>{ if(e.key===' '||e.key==='Enter'){ accelerate(false);} });
+document.querySelector('.stage').addEventListener('click', ()=>{ if(!typing){ window.location.href=NEXT_URL; } });
+
+document.getElementById('mute').onclick=()=>{ unlockAudio(); toggleMute(); };
+
+typeNext();
+</script>
+</body>
+</html>

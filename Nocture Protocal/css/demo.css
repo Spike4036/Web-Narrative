@@ -1,0 +1,178 @@
+/* =================== 基础变量 & 字体 =================== */
+:root{
+  --font-title:'Press Start 2P', system-ui, sans-serif;
+  --font-body:'VT323', ui-monospace, monospace;
+
+  --space-1:8px; --space-2:12px; --space-3:16px; --space-4:20px;
+  --radius-1:6px; --radius-2:10px; --radius-3:14px;
+}
+
+/* 主题 A：红（Dead Quiet 风） */
+html[data-theme="red-quiet"]{
+  --bg:#180203;
+  --panel:#2a090a;
+  --panel-2:#1d0507;
+  --line:rgba(255,220,220,.18);
+  --ink:#f7e7e7;
+  --muted:#f3b4b4;
+  --ink-dim:#ffd8d8;
+  --accent:#ff3b3b;
+  --accent-2:#c02b2b;
+  --grid:#5a0f11;
+}
+
+/* 主题 B：绿（CRT 风） */
+html[data-theme="green-crt"]{
+  --bg:#06110e;
+  --panel:#0b1511;
+  --panel-2:#08100c;
+  --line:rgba(190,255,210,.16);
+  --ink:#bfd7c6;
+  --muted:#7f938a;
+  --ink-dim:#d9f0e6;
+  --accent:#98f0b0;
+  --accent-2:#62c892;
+  --grid:#0f2a20;
+}
+
+/* =================== 全局与背景纹理 =================== */
+html,body{height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--font-body); font-size:18px; line-height:1.45;
+  -webkit-font-smoothing:none; text-rendering:optimizeSpeed;
+}
+
+.dotbg{position:fixed; inset:0; pointer-events:none; opacity:.18;
+  background:radial-gradient(var(--grid) 1px, transparent 1px) 0 0/6px 6px;}
+.crt-scan,.crt-noise{position:fixed; inset:0; pointer-events:none; mix-blend-mode:soft-light}
+.crt-scan{opacity:.08; background:linear-gradient(#fff2 1px,transparent 1px);
+  background-size:100% 3px; animation:scan 6s linear infinite}
+.crt-noise{opacity:.08; background:radial-gradient(#fff2 1px,transparent 1px);
+  background-size:3px 3px}
+@keyframes scan{to{transform:translateY(3px)}}
+
+/* =================== 布局（左 40–45% / 右 55–60%） =================== */
+.app{position:relative; z-index:1; min-height:100vh; padding:10px}
+.grid{
+  display:grid; gap:12px;
+  grid-template-columns: 42% 58%;              /* 默认 42/58 */
+  height:calc(100vh - 20px);
+}
+@media (min-width:1400px){ .grid{ grid-template-columns: 40% 60%; } } /* 更宽 → 40/60 */
+@media (max-width:1100px){ .grid{ grid-template-columns: 45% 55%; } } /* 中屏 → 45/55 */
+@media (max-width:860px){  .grid{ grid-template-columns: 1fr; height:auto; } } /* 小屏堆叠 */
+
+/* =================== 左：场景（4:3 盒） =================== */
+.scene{
+  position:relative; border:2px solid var(--line);
+  background:linear-gradient(180deg,var(--panel),var(--panel-2));
+  border-radius:12px; overflow:hidden;
+  display:grid; grid-template-rows:auto 1fr auto;
+}
+.scene-hud{display:flex; gap:8px; padding:8px; align-items:center; flex-wrap:wrap}
+.chip{
+  font-size:12px; padding:4px 8px; border:1px dashed var(--line);
+  border-radius:8px; color:var(--ink-dim); background:rgba(0,0,0,.25)
+}
+.chip-btn{cursor:pointer}
+
+.box-43{position:relative; margin:8px; border:1px solid var(--line);
+  border-radius:10px; overflow:hidden; background:#000}
+.box-43::before{content:""; display:block; width:100%; padding-top:75%} /* 4:3 */
+.box-inner{position:absolute; inset:0; display:grid; place-items:center}
+.box-inner img{
+  width:100%; height:100%; object-fit:cover; image-rendering:pixelated;
+  filter:contrast(1.04) saturate(.9) brightness(.9);
+}
+.scene-cap{padding:8px; color:var(--ink-dim); border-top:1px dashed var(--line);
+  background:rgba(0,0,0,.18)}
+
+/* =================== 右：叙事 + SAN + 选项 =================== */
+.panel{
+  display:grid; grid-template-rows:auto auto 1fr auto; gap:10px;
+  border:2px solid var(--line);
+  background:linear-gradient(180deg,var(--panel),var(--panel-2));
+  border-radius:12px; padding:12px;
+}
+.hdr{display:flex; justify-content:space-between; align-items:center}
+.title{font-family:var(--font-title); font-size:18px; letter-spacing:.08em}
+.sub{color:var(--muted); font-size:14px}
+
+.san{border:1px solid var(--line); padding:8px}
+.slab{color:var(--muted); font-size:14px}
+.track{height:10px; border:1px solid var(--line); margin-top:6px;
+  background:#0004; border-radius:6px; overflow:hidden}
+.fill{height:100%; width:100%; transform-origin:left center;
+  background:linear-gradient(90deg,#65f4c2,#ffe071,#ff5a5a)}
+
+.story{border:1px solid var(--line); background:rgba(0,0,0,.18);
+  padding:12px; overflow:auto}
+.story p{margin:0 0 10px}
+.typo{white-space:pre-wrap; min-height:120px}
+.caret{display:inline-block; width:0.75ch; border-right:2px solid currentColor;
+  animation:blink 1s step-end infinite}
+@keyframes blink{50%{border-color:transparent}}
+
+.choices{display:flex; flex-direction:column; gap:10px; margin-top:10px}
+.btn{
+  cursor:pointer; user-select:none;
+  font-family:var(--font-title); letter-spacing:.08em; font-size:12px;
+  padding:10px 14px; border-radius:8px; border:1px solid var(--line);
+  background:rgba(0,0,0,.2); color:var(--ink); text-align:left;
+  transition:transform .1s ease, filter .2s ease;
+}
+.btn:hover{transform:translateY(-1px); filter:brightness(1.05)}
+.btn-primary{color:#280606; background:linear-gradient(180deg,var(--accent),var(--accent-2)); border-color:#ff9d9d}
+
+.footer{display:flex; gap:16px; justify-content:flex-end; color:var(--muted);
+  font-size:12px; border-top:1px dashed var(--line); padding-top:8px}
+
+/* =================== SAN 低阈值：抖动 + 色差 =================== */
+.app.panic{ animation:nyx-shake .4s infinite }
+.app.panic .box-inner img{
+  filter:contrast(1.15) saturate(1.15) hue-rotate(-12deg)
+         drop-shadow(1px 0 0 #ff2a2a) drop-shadow(-1px 0 0 #2aff88);
+}
+@keyframes nyx-shake{
+  0%,100%{ transform:translate(0,0) }
+  25%    { transform:translate(1px,-1px) }
+  50%    { transform:translate(-1px,1px) }
+  75%    { transform:translate(1px,1px) }
+}
+
+/* =================== 入场一次性闪烁（红调） =================== */
+.scene.enter-flicker .box-inner{ animation:nyx-flick .58s steps(6) 1 }
+@keyframes nyx-flick{
+  0%,20%,40%,60%,80%{ filter:brightness(2) contrast(1.6) hue-rotate(-10deg) }
+  10%,30%,50%,70%,100%{ filter:brightness(.9) contrast(1.1) }
+}
+
+/* =================== 红色警报：边框持续闪烁（重复） =================== */
+.alarm-on .scene,
+.alarm-on .panel{
+  animation: nyx-border-flicker 1.05s steps(8) infinite;
+}
+@keyframes nyx-border-flicker{
+  0%{
+    border-color:#ff9d9d;
+    box-shadow:
+      0 0 0 3px #3a0c0d inset,
+      0 0 18px 2px rgba(255,60,60,.45);
+    filter:saturate(1.05) contrast(1.05);
+  }
+  50%{
+    border-color:var(--line);
+    box-shadow:
+      0 0 0 3px #240708 inset,
+      0 0 4px 0 rgba(255,60,60,.10);
+    filter:saturate(.95) contrast(.95);
+  }
+  100%{
+    border-color:#ff9d9d;
+    box-shadow:
+      0 0 0 3px #3a0c0d inset,
+      0 0 18px 2px rgba(255,60,60,.45);
+    filter:saturate(1.05) contrast(1.05);
+  }
+}

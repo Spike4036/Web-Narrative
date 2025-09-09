@@ -1,0 +1,137 @@
+{
+  "startNode": "start",
+  "nodes": {
+    "start": {
+      "img": "img/alarm.png",
+      "cap": "Crew Berth — Pulsing Beacon",
+      "status": "COMMS: radio darkness",
+      "alarm": true,
+      "text": [
+            "Your eyelids twitch. You wake from cold hibernation.",
+            "Not by choice. Not by schedule. It's the alarm. A piercing shriek drills into your skull.",
+            "Red words flood the main screen:",
+            "「WARNING: SOLAR STORM IMPACT」",
+            "「WARNING: COMMS ARRAY: MULTIPLE FAILURES」",
+            "「WARNING: SCAN MODULE: DATA CORRUPTED」",
+            "Your throat is sand. Your heart pounds in your ears.",
+            "But beneath it all… a distant knock echoes through the station.",
+            "Something is not where it should be."
+      ],
+      "choices": [
+        { "label": "Open Ops Console", "next": "console", "san": -2 },
+        { "label": "Observe Nightfall (homeworld)", "next": "nightfall", "san": -1 }
+      ]
+    },
+    "console": {
+      "img": "img/console.jpg",
+      "cap": "Ops Console — K-class spikes",
+      "status": "COMMS: diagnostics",
+      "alarm": true,
+      "text": [
+        "Diagnostics blame the storm. The graphs disagree by a precise amount.",
+        "A whisper in the buffer: K-class anomalies rising."
+      ],
+      "choices": [
+        { "label": "Replay outer-line cache", "next": "relays", "san": -6 },
+        { "label": "Play Moonlight to steady (+SAN)", "next": "console", "san": 6, "stopAlarm": true },
+        { "label": "Return to viewport", "next": "nightfall", "san": 0, "stopAlarm": true }
+      ]
+    },
+    "nightfall": {
+      "img": "img/planet-nightfall.jpg",
+      "cap": "Nightfall — Orbital Window",
+      "status": "COMMS: ground passive",
+      "alarm": false,
+      "text": [
+        "Citylight spreads like a lattice. Bands thin and flicker.",
+        "A soft corrugation ripples from the pole—touch without fingers."
+      ],
+      "choices": [
+        { "label": "Hold silence and read the circular", "next": "logs", "san": -2 },
+        { "label": "Transmit a safety advisory", "next": "decision", "san": -10, "stopAlarm": true }
+      ]
+    },
+    "relays": {
+      "img": "img/relay-noise.jpg",
+      "cap": "Outer Relays — Fragment Channel",
+      "status": "COMMS: fragment channel",
+      "alarm": true,
+      "text": [
+        "Snatches of speech, bitten by static:",
+        "“...entity measures presence along the comm spine...”",
+        "“...silence is survival...”",
+        "“...invoke Protocol NYX...”"
+      ],
+      "choices": [
+        { "label": "Open flight log (Karl)", "next": "logs", "san": -4, "stopAlarm": true },
+        { "label": "Back to console", "next": "console", "san": 0 }
+      ]
+    },
+    "logs": {
+      "img": "img/journal.jpg",
+      "cap": "Flight Log — Scattered Hand",
+      "status": "COMMS: internal log",
+      "alarm": false,
+      "text": [
+        "T+11:02 The planet dims at the edge.",
+        "T+13:17 Clerics name it: Silence Protocol.",
+        "T+16:41 The dark is not absence. It leans closer when we speak."
+      ],
+      "choices": [
+        { "label": "Observe Nightfall again", "next": "nightfall", "san": -1 },
+        { "label": "Run narrow-beam test ping", "next": "decision", "san": -8 }
+      ]
+    },
+    "decision": {
+      "img": "img/warning.jpg",
+      "cap": "Decision — The Mouth of the Void",
+      "status": "COMMS: armed",
+      "alarm": true,
+      "text": [
+        "Your finger hovers above BROADCAST.",
+        "If you warn the line, the thing may taste home. If you obey Protocol, the line goes blind—and maybe lives."
+      ],
+      "choices": [
+        { "label": "Obey SILENT PROTOCOL", "next": "end_silence", "san": -6, "stopAlarm": true },
+        { "label": "BROADCAST the warning", "next": "end_cast", "san": -30, "stopAlarm": true },
+        { "label": "Drop a REFLECTOR at L1", "next": "end_beacon", "san": -12, "stopAlarm": true }
+      ]
+    },
+    "end_silence": {
+      "img": "img/blackout.jpg",
+      "cap": "Obedience — Black Quiet",
+      "status": "COMMS: offline",
+      "alarm": false,
+      "text": [
+        "Transmitters cool to their last warm nerve. The station becomes a cave."
+      ],
+      "choices": [
+        { "label": "Restart", "next": "start", "san": 16 }
+      ]
+    },
+    "end_cast": {
+      "img": "img/entity.jpg",
+      "cap": "Catastrophe — Recognition",
+      "status": "COMMS: recognized",
+      "alarm": false,
+      "text": [
+        "Space replies—not thunder, but recognition. Clouds convulse to a geometry the mind abhors."
+      ],
+      "choices": [
+        { "label": "Restart", "next": "start", "san": 16 }
+      ]
+    },
+    "end_beacon": {
+      "img": "img/beacon.jpg",
+      "cap": "Third Path — Cold Mirror",
+      "status": "COMMS: passive",
+      "alarm": false,
+      "text": [
+        "You seed L1 with a one-shot reflector. A breadcrumb for the lost—not a flag for the hunter."
+      ],
+      "choices": [
+        { "label": "Restart", "next": "start", "san": 16 }
+      ]
+    }
+  }
+}
