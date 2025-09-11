@@ -1,0 +1,302 @@
+{
+  "startNode": "start",
+  "nodes": {
+    "start": {
+      "img": "img/alarm.png",
+      "cap": "Crew Berth — Pulsing Beacon",
+      "status": "COMMS: radio darkness",
+      "alarm": true,
+      "text": [
+            "Your eyelids twitch. You wake from cold hibernation.",
+            "Not by choice. Not by schedule. It's the alarm. A piercing shriek drills into your skull.",
+            "Red words flood the main screen:",
+            "「WARNING: SOLAR STORM IMPACT」",
+            "「WARNING: COMMS ARRAY: MULTIPLE FAILURES」",
+            "「WARNING: SCAN MODULE: DATA CORRUPTED」",
+            "Your throat is sand. Your heart pounds in your ears.",
+            "But beneath it all… a distant knock echoes through the station.",
+            "Something is not where it should be."
+      ],
+      "choices": [
+        { "label": "Open the door", "next": "corridor", "san": 0 },
+        { "label": "Observe Nocturne (homeworld)", "next": "Nocturne", "san": 0 },
+        { "label": "test", "next": "test", "san": 0 }
+      ]
+    },
+
+    "test": {
+  "img": "img/alarm.png",
+  "cap": "Crew Berth — Pulsing Beacon",
+  "status": "COMMS: radio darkness",
+  "alarm": true,
+  "text": [
+    "Your eyelids twitch. You wake from cold hibernation.",
+    "Red words flood the main screen...",
+    "Something is not where it should be."
+  ],
+  "choices": [
+    { "label": "Open the door", "next": "corridor", "san": 0 },
+    { "label": "Observe Nocturne (homeworld)", "next": "Observatory","cmd": "openObservatory", "san": 0 },
+    { "label": "Open Relay Inbox (colonies)", "next": "Relay","cmd": "openRelay", "san": 0 }
+  ]
+},
+
+    "Nocturne": {
+      "img": "img/viewport-nocturne.png",
+      "cap": "VIEWPORT — HOMEWORLD",
+      "status": "PLANETARY STATUS: NOMINAL",
+      "alarm": true,
+      "text": [
+        "The abrupt awakening still clouds your thoughts. Did Mission Control know about this storm? Why no warning?",
+        "You press your palm against the cold viewport, staring at Nocturne below—a frontier world where resources run thin and the Church holds all authority.",
+        "Home should be waiting at the end of your rotation, but first you must uncover what's silenced this station.",
+        "As you turn toward the corridor, one thought echoes: What happened while you slept?"
+      ],
+      "choices": [
+        { "label": "Enter the corridor", "next": "corridor", "san": 0 }
+      ]
+    },
+
+    "corridor": {
+      "img": "img/corridor.png",
+      "cap": "Corridor — Blinking Lights",
+      "status": "COMMS: unclear",
+      "alarm": true,
+      "text": [
+        "You open the door and step into the corridor.",
+        "Sirens echo. Red lights pulse along steel walls.",
+        "Your pulse races. You need to know what’s happening.",
+        "The control room is ahead."
+      ],
+      "choices": [
+        { "label": "Enter Control Room", "next": "control_room", "san": 0 }
+      ]
+    },
+
+    "control_room": {
+      "img": "img/console_alarm.JPG",
+      "cap": "Control Room — Flashing Warnings",
+      "status": "COMMS: unstable",
+      "alarm": true,
+      "text": [
+        "You step before the console. Screens flash urgent red text.",
+        "“SOLAR STORM IMPACT”",
+        "“COMMS ARRAY FAILURE”",
+        "“SCAN MODULE: DATA CORRUPT”",
+        "You swallow. The station is failing.",
+        "Alarms blare. You must act."
+      ],
+      "choices": [
+        { "label": "Shut off the alarm", "next": "alarm_off", "san": -1 }
+      ]
+    },
+
+    "alarm_off": {
+      "img": "img/console_after.png",
+      "cap": "Control Room — Silence",
+      "status": "COMMS: unstable",
+      "alarm": false,
+      "text": [
+        "You slam the mute button.",
+        "Alarms cut out instantly.",
+        "Silence crashes down. You can finally think clearly."
+      ],
+      "choices": [
+        { "label": "Continue", "next": "contact_nocturne", "san": 0 }
+      ]
+    },
+
+
+"contact_nocturne": {
+  "img": "img/contact.png",
+  "cap": "Control Room — Outgoing Signal",
+  "status": "COMMS: attempting",
+  "alarm": false,
+  "text": [
+    "You route power to the comms array.",
+    "You call Nightfall ground control. Again and again.",
+    "Only static answers you. No return signal. No voices.",
+    "Silence from the planet below chills your spine."
+
+  ],
+   "choices": [
+    { 
+      "label": "Prepare a Cosmic radio broadcast SOS", 
+      "next": "end_badsos", 
+      "san": -10 
+    },
+
+    { 
+      "label": "Look around the console", 
+      "next": "look_around", 
+      "san": -1 
+    }
+  ]
+},
+
+"end_badsos": {
+  "img": "img/Ending1.jpg",
+  "cap": "Catastrophe — The Nebula Finds You",
+  "status": "COMMS: exposed",
+  "alarm": false,
+  "text": [
+    "You send the broadcast, a desperate call for help.",
+    "The void stirs. The nebula hears you.",
+    "Lights on Nightfall gutter out. Your mind blurs, stretching thin.",
+    "The storm wasn’t weather. It was hunger.",
+    "You and your world are swallowed, thoughts dissolving into the nebula."
+  ],
+  "choices": [
+    { "label": "Restart", "next": "start", "san": 20 }
+  ]
+},
+
+
+"look_around": {
+  "img": "img/console_after.png",
+  "cap": "Control Room — Searching",
+  "status": "COMMS: unstable",
+  "alarm": false,
+  "text": [
+    "You step back from the transmitter, ready to shut it down.",
+    "Then you notice a folder of archived comms logs.",
+    "It’s labeled in the handwriting of the former broadcaster.",
+    "Maybe inside there is something useful—something he saw before the end."
+  ],
+  "choices": [
+    { "label": "Open comms log", "next": "broadcaster_logs", "san": -2 }
+  ]
+},
+
+"log_entry1": {
+  "img": "img/journal.jpg",
+  "cap": "Log Entry 1",
+  "status": "COMMS: archived",
+  "alarm": false,
+  "text": [
+    "Day 14: Routine check. Orbit stable. Supplies low but manageable."
+  ],
+  "choices": [
+    { "label": "Next log entry", "next": "log_entry2", "san": 0 }
+  ]
+},
+
+"log_entry2": {
+  "img": "img/journal.jpg",
+  "cap": "Log Entry 2",
+  "status": "COMMS: archived",
+  "alarm": false,
+  "text": [
+    "Day 31: Transmission to Earth sent. Report nominal."
+  ],
+  "choices": [
+    { "label": "Next log entry", "next": "log_entry3", "san": 0 }
+  ]
+},
+
+"log_entry3": {
+  "img": "img/journal.jpg",
+  "cap": "Log Entry 3",
+  "status": "COMMS: archived",
+  "alarm": false,
+  "text": [
+    "Day 46: Detected strange cloud on long-range scans. Nebula-like, moving with intent."
+  ],
+  "choices": [
+    { "label": "Next log entry", "next": "log_entry4", "san": -1 }
+  ]
+},
+
+"log_entry4": {
+  "img": "img/journal.jpg",
+  "cap": "Log Entry 4",
+  "status": "COMMS: archived",
+  "alarm": false,
+  "text": [
+    "Day 52: Warned Earth. They logged it but sent no reply. The church calls it superstition."
+  ],
+  "choices": [
+    { "label": "Next log entry", "next": "log_entry5", "san": -1 }
+  ]
+},
+
+"log_entry5": {
+  "img": "img/journal.jpg",
+  "cap": "Log Entry 5",
+  "status": "COMMS: archived",
+  "alarm": false,
+  "text": [
+    "Day 67: He hears it in the static. Words repeat. Sentences break. The log grows unstable."
+  ],
+  "choices": [
+    { "label": "Next log entry", "next": "log_entry6", "san": -2 }
+  ]
+},
+
+"log_entry6": {
+  "img": "img/journal.jpg",
+  "cap": "Final Log Entry",
+  "status": "COMMS: archived",
+  "alarm": false,
+  "text": [
+    "Final note: 'It hears us.'",
+    "Broadcaster removed from duty. Replacement assigned — that means you."
+  ],
+  "choices": [
+    { "label": "Close logs", "next": "next_scene", "san": 0 }
+  ]
+},
+
+
+"next_scene": {
+  "img": "img/console_after.png",
+  "cap": "Control Room — After Fragments",
+  "status": "COMMS: unstable",
+  "alarm": false,
+  "text": [
+    "The last fragments fade into static.",
+    "You lean back, pulse racing, mind burning with the implications.",
+    "The nebula hunts signals. Colonies went silent. The clergy tried to hide it.",
+    "Now you must decide your next step."
+  ],
+  "choices": [
+    { "label": "Enter comms chamber to check for colony replies", "next": "openRelay", "san": -2 },
+    { "label": "Run a scan for Nocturne-bound signals", "next": "openObservatory", "san": 0 }
+  ]
+},
+
+"Relay": {
+  "img": "img/comms_room.png",
+  "cap": "Communications Chamber — Empty Channels",
+  "status": "COMMS: listening",
+  "alarm": false,
+  "text": [
+    "You enter the comms chamber. Rows of consoles blink weakly.",
+    "You cycle through frequencies. Most are dead.",
+    "A few faint bursts remain — fractured, almost human, but too broken to decode.",
+    "But you have to try.."
+  ],
+  "choices": [
+   { "label": "Run a scan for Nocturne-bound signals", "next": "observatory", "san": 0 }
+  ]
+},
+
+"Observatory": {
+  "img": "img/scanner.png",
+  "cap": "Long-range Scanner — Nocturne Line",
+  "status": "SCANS: corrupted",
+  "alarm": false,
+  "text": [
+    "You divert power to the long-range scanner.",
+    "Static washes over the display, then patterns emerge.",
+    "A faint carrier trace from Sol. No clear message, only absence.",
+    "If the nebula is between you and Nocturne, then they may already know.",
+    "Or they are already silent."
+  ],
+  "choices": [
+    { "label": "Return to main console", "next": "observatory", "san": -1 }
+  ]
+}
+
+  }
+}
