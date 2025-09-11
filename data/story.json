@@ -135,7 +135,7 @@
 },
 
 "end_badsos": {
-  "img": "img/Ending1.png",
+  "img": "img/Ending1.jpg",
   "cap": "Catastrophe — The Nebula Finds You",
   "status": "COMMS: exposed",
   "alarm": false,
@@ -164,12 +164,12 @@
     "Maybe inside there is something useful—something he saw before the end."
   ],
   "choices": [
-    { "label": "Open comms log", "next": "broadcaster_logs", "san": -2 }
+    { "label": "Open comms log", "next": "log_entry1", "san": -2 }
   ]
 },
 
 "log_entry1": {
-  "img": "img/journal.png",
+  "img": "img/journal.jpg",
   "cap": "Log Entry 1",
   "status": "COMMS: archived",
   "alarm": false,
@@ -182,7 +182,7 @@
 },
 
 "log_entry2": {
-  "img": "img/journal.png",
+  "img": "img/journal.jpg",
   "cap": "Log Entry 2",
   "status": "COMMS: archived",
   "alarm": false,
@@ -195,7 +195,7 @@
 },
 
 "log_entry3": {
-  "img": "img/journal.png",
+  "img": "img/journal.jpg",
   "cap": "Log Entry 3",
   "status": "COMMS: archived",
   "alarm": false,
@@ -208,7 +208,7 @@
 },
 
 "log_entry4": {
-  "img": "img/journal.png",
+  "img": "img/journal.jpg",
   "cap": "Log Entry 4",
   "status": "COMMS: archived",
   "alarm": false,
@@ -221,7 +221,7 @@
 },
 
 "log_entry5": {
-  "img": "img/journal.png",
+  "img": "img/journal.jpg",
   "cap": "Log Entry 5",
   "status": "COMMS: archived",
   "alarm": false,
@@ -234,7 +234,7 @@
 },
 
 "log_entry6": {
-  "img": "img/journal.png",
+  "img": "img/journal.jpg",
   "cap": "Final Log Entry",
   "status": "COMMS: archived",
   "alarm": false,
