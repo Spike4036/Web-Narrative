@@ -1,0 +1,86 @@
+
+
+<!-- ========== globe.html ========== -->
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Observatory — Nocturne Star Surface Scan External Mode」</title>
+<style>
+html,body{height:100%;margin:0;background:#0b1020;color:#e6eef7;font:14px/1.6 ui-monospace,Consolas,Menlo,monospace}
+#wrap{position:fixed;inset:0;display:grid;place-items:center}
+#hint{position:fixed;left:10px;top:8px;font-size:12px;opacity:.9}
+canvas{display:block}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+</head>
+<body>
+<div id="wrap"></div>
+<div id="hint">Drag and rotate · Scroll to zoom · Click hotspots to gather intelligence</div>
+<script>
+try{ window.parent && window.parent.postMessage({type:'obs_ready'}, '*'); }catch(e){}
+
+
+const targets = [
+  { 
+    id: 'silence', 
+    lat: 28, 
+    lon: 68, 
+    label: 'Silent Protocol enforced', 
+    fragment: [
+      "【Ground Intel】 Silent Protocol confirmed across major cities. All EM transmissions restricted. Longwave and microwave beacons shut down.",
+      "*Inference*: Nocturne enforces silence to avoid detection by the nebula."
+    ] 
+  },
+  { 
+    id: 'seers', 
+    lat: 21, 
+    lon: -102, 
+    label: "Clergy claim 'visions' of the entity", 
+    fragment: [
+      "【Ground Intel】 Religious leaders reported visions of a shape moving along comm lanes. they advised complete silence, saying: 'Sound is a signpost.'",
+      "*Inference*: The clergy sensed the nebula’s approach before its arrival, but warning came too late."
+    ] 
+  },
+  { 
+    id: 'towers', 
+    lat: 47, 
+    lon: 6, 
+    label: 'Broadcast towers shut down', 
+    fragment: [
+      "【Ground Intel】 Navigation beacons and high-power towers deactivated in sequence. Air corridors now show gaps where carriers once marked the sky.",
+      "*Inference*: Nocturne’s silence is deliberate, not system failure — a move to evade the nebula."
+    ] 
+  }
+];
+
+const collected = new Set();
+
+
+
+
+window.addEventListener('message', (ev)=>{ if(ev.data && ev.data.type==='close'){ /* no-op */ } });
+
+
+let yaw=0.4, pitch=0.2, yawVel=0, pitchVel=0, R=220, dragging=false;
+function setup(){ const c=createCanvas(window.innerWidth, window.innerHeight); c.parent('wrap'); noStroke(); R=Math.min(width,height)*0.38; }
+function windowResized(){ resizeCanvas(window.innerWidth, window.innerHeight); R=Math.min(width,height)*0.38; }
+function draw(){ clear(); background(12,18,32); const cx=width/2, cy=height/2; drawEarth(cx,cy,R); drawTargets(cx,cy,R); yaw+=yawVel; pitch+=pitchVel; yawVel*=0.98; pitchVel*=0.98; pitch=Math.max(-1.2,Math.min(1.2,pitch)); }
+function mousePressed(){ dragging=true; } function mouseReleased(){ dragging=false; }
+function mouseDragged(){ if(!dragging) return; yawVel += (mouseX - pmouseX)*0.002; pitchVel += (pmouseY - mouseY)*0.002; }
+function mouseWheel(e){ R *= (e.deltaY>0?0.95:1.05); R=Math.max(120, Math.min(420,R)); }
+function mouseClicked(){ const hit=pick(); if(hit) sendIntel(hit); }
+
+
+function drawEarth(cx,cy,r){ const ctx=drawingContext; ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.clip(); const lg=ctx.createLinearGradient(cx-r,cy-r,cx+r,cy+r); lg.addColorStop(0,'#1f3f6d'); lg.addColorStop(0.48,'#102241'); lg.addColorStop(1,'rgba(5,7,14,0.92)'); ctx.fillStyle=lg; ctx.fillRect(cx-r,cy-r,2*r,2*r); ctx.restore(); noFill(); for(let i=0;i<16;i++){ stroke(90,182,255, 6 + (16-i)*3); circle(cx,cy, r*2 + i*2); } }
+function drawTargets(cx,cy,r){ textAlign(CENTER,TOP); textSize(11); for(const t of targets){ const v=project(t.lat,t.lon,yaw,pitch); if(v.z>0) continue; const px=cx+v.x*r, py=cy-v.y*r; noStroke(); fill(255,210,120,220); circle(px,py,6); if(dist(mouseX,mouseY,px,py)<10) tip(px+10,py-10,t.label); } }
+function pick(){ const cx=width/2, cy=height/2; let best=null,bd=1e9; for(const t of targets){ const v=project(t.lat,t.lon,yaw,pitch); if(v.z>0) continue; const px=cx+v.x*R, py=cy-v.y*R; const d=Math.hypot(mouseX-px,mouseY-py); if(d<12 && d<bd){ bd=d; best=t; } } return best; }
+function project(lat,lon,yaw,pitch){ const la=radians(lat), lo=radians(lon); let x=Math.cos(la)*Math.cos(lo), y=Math.sin(la), z=Math.cos(la)*Math.sin(lo); const cosy=Math.cos(yaw), siny=Math.sin(yaw); let x1=cosy*x + siny*z, z1=-siny*x + cosy*z; const cpx=Math.cos(pitch), spx=Math.sin(pitch); let y2=cpx*y - spx*z1, z2=spx*y + cpx*z1; return {x:x1,y:y2,z:z2}; }
+function tip(x,y,msg){ const pad=6; noStroke(); fill(27,36,85,230); const w=textWidth(msg)+pad*2; rect(x,y,w,20,4); fill(230,238,247); text(msg,x+pad,y+4); }
+
+
+function sendIntel(t){ if(collected.has(t.id)) return; collected.add(t.id); try{ window.parent && window.parent.postMessage({type:'intel', payload:t}, '*'); }catch(e){} }
+</script>
+</body>
+</html>

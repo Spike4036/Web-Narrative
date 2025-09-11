@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Relay Inbox v3 — Source Card · Tuner · Record</title>
+
+  <!-- Match main project's pixel fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+
+  <style>
+    /* ===== Dark teal scheme to match main project ===== */
+    :root{
+      --bg:#06161E;        /* page background */
+      --ink:#D6F1FF;       /* primary text */
+      --muted:#8FB6C9;     /* secondary text */
+      --line:rgba(180,230,255,.18);
+      --panel:#0B1C26;     /* panel top */
+      --panel2:#112735;    /* panel bottom */
+      --accent:#7AD1FF;    /* cyan accent */
+      --ok:#7DF7D4;        /* mint */
+      --warn:#FF6B6B;      /* warn red */
+    }
+
+    html,body{
+      height:100%; margin:0; background:var(--bg); color:var(--ink);
+      font:16px/1.55 "VT323","Press Start 2P",ui-monospace,Consolas,Menlo,monospace;
+      -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+      letter-spacing:.2px;
+    }
+
+    /* Layout */
+    .wrap{position:fixed; inset:0; display:grid; grid-template-rows:auto auto auto 1fr auto; gap:10px; padding:12px}
+    .card{border:1px solid var(--line); border-radius:12px; padding:10px;
+      background:linear-gradient(180deg,var(--panel) 0%, var(--panel2) 100%)}
+    h1{font-size:18px; margin:0 0 2px}
+    .hint{font-size:14px; color:var(--muted)}
+
+    /* Source card */
+    .source{display:flex; align-items:center; gap:12px; cursor:pointer; user-select:none}
+    .badge{font-size:13px; padding:2px 8px; border-radius:999px; border:1px solid var(--line);
+      background:#0D2431; color:#cfe9ff}
+    .source .name{font-weight:600}
+    .source.ok{border-color:rgba(125,247,212,.35); box-shadow:0 0 0 1px rgba(125,247,212,.12) inset}
+
+    /* Tuner (bar + moving ball + target rings) */
+    .tuner{position:relative; height:44px}
+    .tuneWrap{position:absolute; inset:8px 8px 10px 8px}
+    .track{position:absolute; left:8px; right:8px; top:28px; height:8px; border-radius:999px;
+      background:#0D232E; border:1px solid var(--line);
+      box-shadow:inset 0 0 0 1px rgba(122,209,255,.1)}
+    .knob{position:absolute; top:24px; width:16px; height:16px; border-radius:50%;
+      background:linear-gradient(180deg,#9ad9ff,#4c94c6);
+      box-shadow:0 0 0 2px rgba(122,209,255,.28), 0 6px 14px rgba(0,0,0,.35)}
+    .slots{position:absolute; left:8px; right:8px; top:18px; height:32px; pointer-events:none}
+    .slot{position:absolute; top:0; transform:translateX(-50%); width:12px; height:12px; border-radius:50%;
+      border:1px solid rgba(214,241,255,.6); background:#113044; box-shadow:0 0 0 1px rgba(122,209,255,.12) inset}
+    .slot::after{content:""; position:absolute; left:50%; top:22px; transform:translateX(-50%);
+      width:1px; height:12px; background:rgba(122,209,255,.28)}
+    .slot.done{border-color:rgba(125,247,212,.8); background:#143E3A; box-shadow:0 0 0 1px rgba(125,247,212,.32) inset}
+    .tuner.fail .track{animation:failflash .18s linear 1}
+    @keyframes failflash{
+      from{box-shadow:inset 0 0 0 2px rgba(255,107,107,.6)}
+      to{box-shadow:inset 0 0 0 1px rgba(122,209,255,.10)}
+    }
+
+    /* Message box */
+    .msgbox{border:1px solid var(--line); border-radius:12px; padding:10px; background:#0A1F2A;
+      white-space:pre-wrap; min-height:150px}
+    .msgbox span.bad{color:#ffd5d5; text-decoration:underline dotted}
+
+    /* Controls */
+    .btnrow{display:flex; gap:8px; flex-wrap:wrap}
+    button{appearance:none; border:1px solid var(--line); background:#143044; color:var(--ink);
+      padding:8px 12px; border-radius:10px; font:16px "VT323","Press Start 2P",ui-monospace,Consolas,Menlo,monospace; cursor:pointer}
+    button:hover{transform:translateY(-1px)}
+    button.ok{border-color:rgba(125,247,212,.25); color:#d5fff4}
+    button[disabled]{opacity:.45; cursor:not-allowed}
+    .foot{display:flex; justify-content:space-between; align-items:center; font-size:14px; color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="card">
+      <h1>Relay Inbox — Interstellar Messages</h1>
+      <div class="hint">
+        Click the <b>Source Card</b> or <b>Calibrate</b>. When the tuning ball aligns with a target ring above,
+        one corrupted character will be fixed. <b>Hit: +SAN 1</b> · <b>Miss: −SAN 2</b>.
+        When all characters are fixed, <b>Record</b> unlocks and sends the restored message to the main app.
+      </div>
+    </header>
+
+    <!-- Source Card (click = do one calibration attempt) -->
+    <section id="sourceCard" class="card source" title="Click to calibrate: fix one character if the ball is aligned with a target ring">
+      <span class="badge" id="srcType">Colony</span>
+      <span class="name" id="srcName">—</span>
+      <span class="hint" id="srcHint">Click to calibrate (fix 1 character)</span>
+    </section>
+
+    <!-- Tuner -->
+    <section class="card tuner" id="tunerCard">
+      <div class="tuneWrap">
+        <div class="track" id="track"></div>
+        <div class="slots" id="slots"></div>
+        <div class="knob" id="knob"></div>
+      </div>
+    </section>
+
+    <!-- Message (corrupted) -->
+    <main class="card">
+      <div id="msg" class="msgbox" aria-live="polite"></div>
+    </main>
+
+    <!-- Controls -->
+    <footer class="card">
+      <div class="btnrow">
+        <button id="btnNew">Next</button>
+        <button id="btnCorrupt">Re-corrupt</button>
+        <button id="btnStep" class="ok">Calibrate (fix 1)</button>
+        <button id="btnRecord" disabled>Record (send to main)</button>
+      </div>
+      <div class="foot">
+        <span id="status">Status: standby</span>
+        <span>Shortcuts: <b>N</b> next · <b>D</b> calibrate · <b>R</b> record</span>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+  // Announce readiness to parent
+  try{ window.parent && window.parent.postMessage({type:'relay_ready'}, '*'); }catch(e){}
+
+  // Source messages
+  const SOURCES = [
+    "Colony Helix-4: Do not transmit high-power signals. The path is visible to hostile entities.",
+    "Outpost Vesta: Our relay failed after a storm. Silent mode kept surface intact for now.",
+    "Station Kallisto: If you must warn others, drop passive beacons at L-points only.",
+    "Orchid Belt Hub: We lost three cities during broadcast tests. Do not repeat our mistake.",
+    "Frontier Lyra: Crew mental strain increases with static. Use tone stabilization sparingly.",
+    "Delta Gate: We recorded distortions forming around the planet after repeated calls.",
+    "Ulysses Anchorage: If any world still listens, conserve power and remain unlit at night."
+  ];
+
+  // DOM refs
+  const msgEl = document.getElementById('msg');
+  const srcCard = document.getElementById('sourceCard');
+  const srcType = document.getElementById('srcType');
+  const srcName = document.getElementById('srcName');
+  const srcHint = document.getElementById('srcHint');
+  const statusEl = document.getElementById('status');
+  const btnNew = document.getElementById('btnNew');
+  const btnCorrupt = document.getElementById('btnCorrupt');
+  const btnStep = document.getElementById('btnStep');
+  const btnRecord = document.getElementById('btnRecord');
+
+  const tunerCard = document.getElementById('tunerCard');
+  const trackEl = document.getElementById('track');
+  const knobEl = document.getElementById('knob');
+  const slotsEl = document.getElementById('slots');
+
+  // Parameters
+  const glyphs = "█▒▓/\\|<>[]{}()*#@&%$!?~^+=";
+  const CAPTURE_RADIUS = 16;      // hit radius in px
+  const SAN_HIT = +1, SAN_MISS = -2;
+  const CORRUPT_RATE = 0.22;
+
+  let targetFull = '', origin = '', body = '';
+  let corrupt = [];               // [{c, good, bad}]
+  let badMap = [];                // [{idx, xN, el, done:false}]
+
+  // Tuner animation
+  let animId=null, dir=1, xN=0.1, speed=0.45; // normalized position & speed
+  let lastTs=0;
+
+  function pick(){ return SOURCES[Math.floor(Math.random()*SOURCES.length)]; }
+  function splitOriginBody(s){
+    const i=s.indexOf(':');
+    if(i>-1) return {origin:s.slice(0,i).trim(), body:s.slice(i+1).trim()};
+    return {origin:'Unknown', body:s};
+  }
+
+  function corruptText(s, rate){
+    return s.split('').map(ch=>{
+      if(/\s/.test(ch)) return {c:ch, good:ch, bad:false};
+      if(Math.random()<rate){
+        const g=glyphs[Math.floor(Math.random()*glyphs.length)];
+        return {c:g, good:ch, bad:true};
+      }
+      return {c:ch, good:ch, bad:false};
+    });
+  }
+
+  function renderMsg(){
+    msgEl.innerHTML='';
+    corrupt.forEach(o=>{
+      const span=document.createElement('span');
+      span.textContent=o.c;
+      if(o.bad) span.className='bad';
+      msgEl.appendChild(span);
+    });
+    const left = corrupt.filter(o=>o.bad).length;
+    const solved = left===0;
+    btnRecord.disabled = !solved; btnRecord.classList.toggle('ok', solved);
+    srcCard.classList.toggle('ok', solved);
+    srcHint.textContent = solved ? 'Completed: ready to record' : `Click to calibrate (remaining ${left})`;
+    statusEl.textContent = solved ? 'Status: restored — ready to record' : `Status: remaining ${left}`;
+  }
+
+  function layoutSlots(){
+    badMap=[]; slotsEl.innerHTML='';
+    const badIdxs = corrupt.map((o,i)=>o.bad?i:-1).filter(i=>i>=0);
+    const n = badIdxs.length;
+    if(n===0) return;
+    for(let k=0;k<n;k++){
+      const idx = badIdxs[k];
+      const pos = (k+1)/(n+1); // 1..n evenly spread
+      const el = document.createElement('div'); el.className='slot'; el.style.left = (pos*100)+'%';
+      slotsEl.appendChild(el);
+      badMap.push({idx, xN:pos, el, done:false});
+    }
+  }
+
+  function rebuildSlotsDoneStates(){
+    for(const s of badMap){
+      const done = !corrupt[s.idx].bad;
+      s.done=done; s.el.classList.toggle('done', done);
+    }
+  }
+
+  function newMessage(){
+    targetFull = pick();
+    const parts = splitOriginBody(targetFull); origin = parts.origin; body = parts.body;
+    corrupt = corruptText(body, CORRUPT_RATE);
+    srcType.textContent = origin.split(' ')[0] || 'Colony';
+    srcName.textContent = origin; srcCard.classList.remove('ok');
+    renderMsg(); layoutSlots(); startAnim();
+  }
+
+  function reCorrupt(){ corrupt = corruptText(body || targetFull, CORRUPT_RATE); renderMsg(); layoutSlots(); }
+
+  function startAnim(){
+    cancelAnim(); lastTs=performance.now(); dir = Math.random()<0.5?1:-1; xN = 0.1 + Math.random()*0.8; speed = 0.38 + Math.random()*0.24;
+    const step=(ts)=>{
+      const dt=Math.max(0, (ts-lastTs)/1000); lastTs=ts;
+      xN += dir*speed*dt;
+      if(xN>1){ xN=1; dir=-1; }
+      if(xN<0){ xN=0; dir=1; }
+      placeKnob();
+      animId=requestAnimationFrame(step);
+    };
+    animId=requestAnimationFrame(step);
+  }
+  function cancelAnim(){ if(animId) cancelAnimationFrame(animId), animId=null; }
+
+  function placeKnob(){
+    const rect = trackEl.getBoundingClientRect();
+    const x = rect.left + 8 + xN*(rect.width-16);
+    knobEl.style.left=(x - rect.left - 8)+'px';
+  }
+
+  function tryCalibrate(){
+    const rect = trackEl.getBoundingClientRect();
+    const knobRect = knobEl.getBoundingClientRect();
+    const knobCenter = knobRect.left + knobRect.width/2;
+    let best=null, bestDist=1e9;
+    for(const s of badMap){
+      if(s.done) continue;
+      const slotX = rect.left + 8 + s.xN*(rect.width-16);
+      const d = Math.abs(slotX - knobCenter);
+      if(d<bestDist){ bestDist=d; best=s; }
+    }
+    if(!best){ renderMsg(); return; } // nothing left to fix
+
+    if(bestDist <= CAPTURE_RADIUS){
+      // Hit → fix that character
+      corrupt[best.idx].c = corrupt[best.idx].good; corrupt[best.idx].bad=false; best.done=true; best.el.classList.add('done');
+      renderMsg();
+      // Notify parent: +SAN
+      try{ window.parent && window.parent.postMessage({type:'colony_tune', payload:{success:true, delta:SAN_HIT}}, '*'); }catch(e){}
+    }else{
+      // Miss → penalty
+      tunerCard.classList.remove('fail'); void tunerCard.offsetWidth; tunerCard.classList.add('fail');
+      try{ window.parent && window.parent.postMessage({type:'colony_tune', payload:{success:false, delta:SAN_MISS}}, '*'); }catch(e){}
+    }
+  }
+
+  function recordSend(){
+    const solved = corrupt.every(o=>!o.bad);
+    if(!solved) return;
+    const payload = { id: 'relay-'+Date.now(), text: `${origin}: ${body}` };
+    try{
+      window.parent && window.parent.postMessage({type:'colony_msg', payload}, '*');
+      statusEl.textContent = 'Status: recorded and sent';
+    }catch(e){}
+  }
+
+  // Bindings
+  btnNew.onclick = newMessage;
+  btnCorrupt.onclick = reCorrupt;
+  btnStep.onclick = tryCalibrate;
+  btnRecord.onclick = recordSend;
+  srcCard.onclick = tryCalibrate;
+
+  window.addEventListener('keydown',(e)=>{
+    const k=e.key.toLowerCase();
+    if(k==='n') newMessage();
+    if(k==='d') tryCalibrate();
+    if(k==='r') recordSend();
+  });
+
+  window.addEventListener('resize', placeKnob);
+  window.addEventListener('message',(ev)=>{ if(ev.data && ev.data.type==='close'){ cancelAnim(); } });
+
+  // Boot
+  newMessage();
+  </script>
+</body>
+</html>
