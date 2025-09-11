@@ -9,6 +9,27 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
   <!-- 统一样式 -->
   <link rel="stylesheet" href="css/demo.css">
+
+  <!-- NYX-INJECT 覆盖弹窗的极简样式（保持你现有风格，不覆盖全局） -->
+  <style>
+    .nyx-dock{position:absolute; inset:0; display:none; z-index:40;
+      border:1px solid rgba(230,238,247,.18); border-radius:12px; overflow:hidden;
+      background:linear-gradient(180deg,#0b1020 0%, #0f1730 100%); box-shadow:0 14px 36px rgba(0,0,0,.45);}
+    .nyx-dock .chrome{display:flex;justify-content:space-between;align-items:center;
+      padding:6px 10px; background:#101937; border-bottom:1px solid rgba(230,238,247,.18)}
+    .nyx-dock .title{font:12px/1 ui-monospace,Consolas,Menlo,monospace; color:#cfe1ff}
+    .nyx-dock .btn{border:1px solid rgba(230,238,247,.18); background:#152044; color:#E6EEF7;
+      font:12px/1 ui-monospace,Consolas,Menlo,monospace; padding:6px 10px; border-radius:8px; cursor:pointer}
+    .nyx-dock iframe{width:100%; height:calc(100% - 36px); border:0; display:block; background:#0b1020}
+
+    /* 右侧“打印回传”轻量样式（沿用你的排版） */
+    .logline{opacity:.92}
+    .log-obs::before{content:"[OBS] "; color:#ffd166}
+    .log-col::before{content:"[COL] "; color:#7df7d4}
+
+    /* 可选：O₂条的色带（不影响现有 SAN 样式） */
+    .track.o2 .fill{background:linear-gradient(90deg,#6fe3a1,#5ab6ff)}
+  </style>
 </head>
 <body>
   <div class="dotbg" aria-hidden="true"></div>
@@ -23,11 +44,22 @@
           <span class="chip">VIEWPORT</span>
           <span class="chip">Aspect 4:3</span>
           <span class="chip" id="hudSan">SAN 100%</span>
+          <!-- NYX-INJECT 新增 O2 芯片 -->
+          <span class="chip" id="hudO2">O₂ 100%</span>
           <button id="themeBtn" class="chip chip-btn" title="Toggle Theme">THEME</button>
         </div>
+
         <div class="box-43">
-          <div class="box-inner">
+          <div class="box-inner" id="sceneBox">
             <img id="sceneImg" src="img/placeholder.jpg" alt="scene">
+            <!-- NYX-INJECT 左侧覆盖弹窗（iframe 承载） -->
+            <div class="nyx-dock" id="dock" aria-modal="true">
+              <div class="chrome">
+                <div class="title" id="dockTitle">—</div>
+                <button class="btn" id="dockClose">Close (ESC)</button>
+              </div>
+              <iframe id="dockFrame" title="External Module"></iframe>
+            </div>
           </div>
         </div>
         <div class="scene-cap" id="sceneCap">—</div>
@@ -43,6 +75,8 @@
         <div class="san">
           <div class="slab">SAN <span id="sanVal">100</span>%</div>
           <div class="track"><div class="fill" id="sanFill" style="transform:scaleX(1)"></div></div>
+          <div class="slab">O₂ <span id="o2Val">100</span>%</div>
+          <div class="track o2"><div class="fill" id="o2Fill" style="transform:scaleX(1)"></div></div>
         </div>
 
         <div class="story">
@@ -60,7 +94,9 @@
   <!-- 循环警报音效（留空路径，等你替换） -->
   <audio id="alarm" src="media/alarm.mp3" loop preload="auto"></audio>
 
+  <audio id="mouse" src=media/click.mp3 preload="auto"></audio>
+
   <!-- App 逻辑 -->
-  <script src="js/app.js"></script>
+  <script src="js/test.js"></script>
 </body>
 </html>
