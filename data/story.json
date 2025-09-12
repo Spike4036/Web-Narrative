@@ -260,8 +260,8 @@
     "Now you must decide your next step."
   ],
   "choices": [
-    { "label": "Enter comms chamber to check for colony replies", "next": "openRelay", "san": -2 },
-    { "label": "Run a scan for Nocturne-bound signals", "next": "openObservatory", "san": 0 }
+    { "label": "Open Relay Inbox (colonies)", "next": "Relay","cmd": "openRelay", "san": 0 }，
+    { "label": "Observe Nocturne (homeworld)", "next": "Observatory","cmd": "openObservatory", "san": 0 }
   ]
 },
 
