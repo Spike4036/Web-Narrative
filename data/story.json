@@ -277,7 +277,7 @@
     "But you have to try.."
   ],
   "choices": [
-   { "label": "Run a scan for Nocturne-bound signals", "next": "observatory", "san": 0 }
+   { "label": "Observe Nocturne (homeworld)", "next": "Observatory","cmd": "openObservatory", "san": 0 }
   ]
 },
 
